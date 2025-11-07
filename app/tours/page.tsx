@@ -6,7 +6,7 @@ const tours = [
     name: "Tandem Paragliding",
     price: "€75",
     duration: "30-45 minutes",
-    description: "Experience the ultimate thrill of flying above the stunning Blue Lagoon with our tandem paragliding adventure. Accompanied by experienced, certified pilots, you'll soar high above Oludeniz and enjoy breathtaking panoramic views of the coastline.",
+    description: "Experience the ultimate thrill of flying above the stunning Blue Lagoon with our tandem paragliding adventure. Accompanied by experienced, certified pilots, you&apos;ll soar high above Oludeniz and enjoy breathtaking panoramic views of the coastline.",
     includes: [
       "Professional pilot",
       "Safety equipment",
