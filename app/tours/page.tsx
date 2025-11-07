@@ -1,97 +1,10 @@
-import Link from "next/link";
+"use client";
 
-const tours = [
-  {
-    id: 1,
-    name: "Tandem Paragliding",
-    price: "€75",
-    duration: "30-45 minutes",
-    description: "Experience the ultimate thrill of flying above the stunning Blue Lagoon with our tandem paragliding adventure. Accompanied by experienced, certified pilots, you&apos;ll soar high above Oludeniz and enjoy breathtaking panoramic views of the coastline.",
-    includes: [
-      "Professional pilot",
-      "Safety equipment",
-      "Photos and videos",
-      "Hotel pickup and drop-off",
-      "Insurance"
-    ],
-    color: "blue"
-  },
-  {
-    id: 2,
-    name: "Boat Tour",
-    price: "€45",
-    duration: "Full day",
-    description: "Discover the hidden gems of the Turquoise Coast on our full-day boat tour. Visit secluded bays, swim in crystal-clear waters, and explore the stunning Butterfly Valley. Includes a delicious lunch on board.",
-    includes: [
-      "Lunch and refreshments",
-      "Swimming stops",
-      "Butterfly Valley visit",
-      "Snorkeling equipment",
-      "Experienced crew"
-    ],
-    color: "green"
-  },
-  {
-    id: 3,
-    name: "Jeep Safari",
-    price: "€50",
-    duration: "6-7 hours",
-    description: "Embark on an exciting off-road adventure through the Taurus Mountains. Visit traditional villages, explore ancient ruins, and enjoy spectacular mountain views. Perfect for those seeking adventure and culture.",
-    includes: [
-      "4x4 jeep ride",
-      "Village visits",
-      "Lunch in local restaurant",
-      "Swimming break",
-      "Professional guide"
-    ],
-    color: "orange"
-  },
-  {
-    id: 4,
-    name: "Scuba Diving",
-    price: "€60",
-    duration: "Half day",
-    description: "Dive into the crystal-clear Mediterranean waters and explore vibrant marine life. Suitable for both beginners and experienced divers. All equipment and instruction provided.",
-    includes: [
-      "Diving equipment",
-      "PADI certified instructor",
-      "2 dives",
-      "Light refreshments",
-      "Underwater photos"
-    ],
-    color: "cyan"
-  },
-  {
-    id: 5,
-    name: "Sunset Cruise",
-    price: "€40",
-    duration: "3 hours",
-    description: "Enjoy a romantic evening sailing along the coast as the sun sets over the Mediterranean. Includes drinks and snacks while you relax and take in the spectacular views.",
-    includes: [
-      "Drinks and snacks",
-      "Swimming opportunity",
-      "Music on board",
-      "Sunset views",
-      "Professional crew"
-    ],
-    color: "purple"
-  },
-  {
-    id: 6,
-    name: "Kayaking Adventure",
-    price: "€35",
-    duration: "4 hours",
-    description: "Paddle through the beautiful turquoise waters and explore hidden coves and beaches. Suitable for all skill levels with a guide to lead the way.",
-    includes: [
-      "Kayak and equipment",
-      "Safety gear",
-      "Professional guide",
-      "Snorkeling opportunity",
-      "Waterproof bag"
-    ],
-    color: "teal"
-  }
-];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Tour } from "@/types/tour";
+import Image from "next/image";
 
 const colorVariants: { [key: string]: string } = {
   blue: "from-blue-400 to-blue-600",
@@ -112,6 +25,62 @@ const buttonVariants: { [key: string]: string } = {
 };
 
 export default function ToursPage() {
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTours() {
+      try {
+        const { data, error } = await supabase
+          .from('tours')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        setTours(data || []);
+      } catch (err) {
+        console.error('Error fetching tours:', err);
+        setError('Failed to load tours. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTours();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen">
+        <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl font-bold mb-4">Our Tours</h1>
+            <p className="text-xl max-w-3xl mx-auto">
+              Loading tours...
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen">
+        <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl font-bold mb-4">Our Tours</h1>
+            <p className="text-xl max-w-3xl mx-auto text-red-200">
+              {error}
+            </p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen">
       {/* Header Section */}
@@ -135,7 +104,18 @@ export default function ToursPage() {
                 key={tour.id}
                 className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
               >
-                <div className={`h-48 bg-gradient-to-r ${colorVariants[tour.color]}`}></div>
+                {tour.image_url ? (
+                  <div className="relative h-48">
+                    <Image
+                      src={tour.image_url}
+                      alt={tour.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className={`h-48 bg-gradient-to-r ${colorVariants[tour.color] || 'from-blue-400 to-blue-600'}`}></div>
+                )}
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2">{tour.name}</h3>
                   <p className="text-gray-500 mb-4">
@@ -143,17 +123,19 @@ export default function ToursPage() {
                   </p>
                   <p className="text-gray-600 mb-4">{tour.description}</p>
                   
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2">Includes:</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      {tour.includes.map((item, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="mr-2">✓</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {tour.includes && tour.includes.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="font-semibold mb-2">Includes:</h4>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        {tour.includes.map((item, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="mr-2">✓</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   <div className="flex justify-between items-center pt-4 border-t">
                     <span className="text-3xl font-bold text-gray-800">
@@ -161,7 +143,7 @@ export default function ToursPage() {
                     </span>
                     <Link
                       href="/contact"
-                      className={`${buttonVariants[tour.color]} text-white px-6 py-2 rounded-lg transition`}
+                      className={`${buttonVariants[tour.color] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
                     >
                       Book Now
                     </Link>
@@ -170,6 +152,14 @@ export default function ToursPage() {
               </div>
             ))}
           </div>
+
+          {tours.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600">
+                No tours available at the moment. Please check back later!
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,6 +1,64 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Tour } from "@/types/tour";
+import Image from "next/image";
+
+const colorVariants: { [key: string]: string } = {
+  blue: "from-blue-400 to-blue-600",
+  green: "from-green-400 to-green-600",
+  orange: "from-orange-400 to-orange-600",
+  cyan: "from-cyan-400 to-cyan-600",
+  purple: "from-purple-400 to-purple-600",
+  teal: "from-teal-400 to-teal-600"
+};
+
+const buttonVariants: { [key: string]: string } = {
+  blue: "bg-blue-600 hover:bg-blue-700",
+  green: "bg-green-600 hover:bg-green-700",
+  orange: "bg-orange-600 hover:bg-orange-700",
+  cyan: "bg-cyan-600 hover:bg-cyan-700",
+  purple: "bg-purple-600 hover:bg-purple-700",
+  teal: "bg-teal-600 hover:bg-teal-700"
+};
+
+const priceColors: { [key: string]: string } = {
+  blue: "text-blue-600",
+  green: "text-green-600",
+  orange: "text-orange-600",
+  cyan: "text-cyan-600",
+  purple: "text-purple-600",
+  teal: "text-teal-600"
+};
 
 export default function Home() {
+  const [featuredTours, setFeaturedTours] = useState<Tour[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchFeaturedTours() {
+      try {
+        const { data, error } = await supabase
+          .from('tours')
+          .select('*')
+          .eq('featured', true)
+          .limit(3);
+
+        if (error) throw error;
+
+        setFeaturedTours(data || []);
+      } catch (err) {
+        console.error('Error fetching featured tours:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFeaturedTours();
+  }, []);
+
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
@@ -39,70 +97,61 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-center mb-12">
             Our Popular Tours
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Tour Card 1 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-              <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-3">Tandem Paragliding</h3>
-                <p className="text-gray-600 mb-4">
-                  Fly with an experienced pilot and enjoy stunning views of
-                  Oludeniz&apos;s famous Blue Lagoon.
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-blue-600">€75</span>
-                  <Link
-                    href="/tours"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-                  >
-                    Book Now
-                  </Link>
-                </div>
-              </div>
-            </div>
 
-            {/* Tour Card 2 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-              <div className="h-48 bg-gradient-to-r from-green-400 to-green-600"></div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-3">Boat Tour</h3>
-                <p className="text-gray-600 mb-4">
-                  Explore the beautiful bays and islands of Oludeniz on our
-                  full-day boat excursion.
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-green-600">€45</span>
-                  <Link
-                    href="/tours"
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
-                  >
-                    Book Now
-                  </Link>
-                </div>
-              </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600">Loading tours...</p>
             </div>
-
-            {/* Tour Card 3 */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-              <div className="h-48 bg-gradient-to-r from-orange-400 to-orange-600"></div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-3">Jeep Safari</h3>
-                <p className="text-gray-600 mb-4">
-                  Discover the rugged mountain terrain and traditional villages
-                  surrounding Oludeniz.
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-orange-600">€50</span>
-                  <Link
-                    href="/tours"
-                    className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition"
-                  >
-                    Book Now
-                  </Link>
+          ) : featuredTours.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredTours.map((tour) => (
+                <div
+                  key={tour.id}
+                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
+                >
+                  {tour.image_url ? (
+                    <div className="relative h-48">
+                      <Image
+                        src={tour.image_url}
+                        alt={tour.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className={`h-48 bg-gradient-to-r ${colorVariants[tour.color] || 'from-blue-400 to-blue-600'}`}></div>
+                  )}
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bold mb-3">{tour.name}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3">{tour.description}</p>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-2xl font-bold ${priceColors[tour.color] || 'text-blue-600'}`}>
+                        {tour.price}
+                      </span>
+                      <Link
+                        href="/tours"
+                        className={`${buttonVariants[tour.color] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
+                      >
+                        Book Now
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600 mb-4">
+                Check out our amazing tour offerings!
+              </p>
+              <Link
+                href="/tours"
+                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-block"
+              >
+                View All Tours
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
