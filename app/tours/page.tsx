@@ -6,22 +6,16 @@ import { supabase } from "@/lib/supabase";
 import { Tour } from "@/types/tour";
 import Image from "next/image";
 
-const colorVariants: { [key: string]: string } = {
-  blue: "from-blue-400 to-blue-600",
-  green: "from-green-400 to-green-600",
-  orange: "from-orange-400 to-orange-600",
-  cyan: "from-cyan-400 to-cyan-600",
-  purple: "from-purple-400 to-purple-600",
-  teal: "from-teal-400 to-teal-600"
+const categoryColors: { [key: string]: string } = {
+  Sky: "from-blue-400 to-blue-600",
+  Water: "from-cyan-400 to-cyan-600",
+  Land: "from-green-400 to-green-600"
 };
 
-const buttonVariants: { [key: string]: string } = {
-  blue: "bg-blue-600 hover:bg-blue-700",
-  green: "bg-green-600 hover:bg-green-700",
-  orange: "bg-orange-600 hover:bg-orange-700",
-  cyan: "bg-cyan-600 hover:bg-cyan-700",
-  purple: "bg-purple-600 hover:bg-purple-700",
-  teal: "bg-teal-600 hover:bg-teal-700"
+const categoryButtonColors: { [key: string]: string } = {
+  Sky: "bg-blue-600 hover:bg-blue-700",
+  Water: "bg-cyan-600 hover:bg-cyan-700",
+  Land: "bg-green-600 hover:bg-green-700"
 };
 
 export default function ToursPage() {
@@ -35,7 +29,8 @@ export default function ToursPage() {
         const { data, error } = await supabase
           .from('tours')
           .select('*')
-          .order('id', { ascending: true });
+          .eq('is_active', true)
+          .order('created_at', { ascending: true });
 
         if (error) throw error;
 
@@ -50,6 +45,12 @@ export default function ToursPage() {
 
     fetchTours();
   }, []);
+
+  const formatPrice = (tour: Tour) => {
+    const price = tour.price_adult;
+    const currency = tour.currency === 'TRY' ? '₺' : tour.currency === 'USD' ? '$' : '€';
+    return `${currency}${price.toFixed(0)}`;
+  };
 
   if (loading) {
     return (
@@ -114,36 +115,51 @@ export default function ToursPage() {
                     />
                   </div>
                 ) : (
-                  <div className={`h-48 bg-gradient-to-r ${colorVariants[tour.color] || 'from-blue-400 to-blue-600'}`}></div>
+                  <div className={`h-48 bg-gradient-to-r ${categoryColors[tour.category] || 'from-blue-400 to-blue-600'}`}></div>
                 )}
                 <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-semibold text-gray-500 uppercase">
+                      {tour.category}
+                    </span>
+                  </div>
                   <h3 className="text-2xl font-bold mb-2">{tour.name}</h3>
                   <p className="text-gray-500 mb-4">
                     Duration: {tour.duration}
                   </p>
-                  <p className="text-gray-600 mb-4">{tour.description}</p>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{tour.short_description}</p>
                   
-                  {tour.includes && tour.includes.length > 0 && (
+                  {tour.included && tour.included.length > 0 && (
                     <div className="mb-4">
                       <h4 className="font-semibold mb-2">Includes:</h4>
                       <ul className="text-sm text-gray-600 space-y-1">
-                        {tour.includes.map((item, index) => (
+                        {tour.included.slice(0, 4).map((item: string, index: number) => (
                           <li key={index} className="flex items-start">
                             <span className="mr-2">✓</span>
                             <span>{item}</span>
                           </li>
                         ))}
+                        {tour.included.length > 4 && (
+                          <li className="text-gray-500 italic text-xs">
+                            +{tour.included.length - 4} more...
+                          </li>
+                        )}
                       </ul>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center pt-4 border-t">
-                    <span className="text-3xl font-bold text-gray-800">
-                      {tour.price}
-                    </span>
+                    <div>
+                      <span className="text-3xl font-bold text-gray-800">
+                        {formatPrice(tour)}
+                      </span>
+                      {tour.price_child && (
+                        <p className="text-sm text-gray-500">per adult</p>
+                      )}
+                    </div>
                     <Link
                       href="/contact"
-                      className={`${buttonVariants[tour.color] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
+                      className={`${categoryButtonColors[tour.category] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
                     >
                       Book Now
                     </Link>

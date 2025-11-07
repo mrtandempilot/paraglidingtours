@@ -6,31 +6,22 @@ import { supabase } from "@/lib/supabase";
 import { Tour } from "@/types/tour";
 import Image from "next/image";
 
-const colorVariants: { [key: string]: string } = {
-  blue: "from-blue-400 to-blue-600",
-  green: "from-green-400 to-green-600",
-  orange: "from-orange-400 to-orange-600",
-  cyan: "from-cyan-400 to-cyan-600",
-  purple: "from-purple-400 to-purple-600",
-  teal: "from-teal-400 to-teal-600"
+const categoryColors: { [key: string]: string } = {
+  Sky: "from-blue-400 to-blue-600",
+  Water: "from-cyan-400 to-cyan-600",
+  Land: "from-green-400 to-green-600"
 };
 
-const buttonVariants: { [key: string]: string } = {
-  blue: "bg-blue-600 hover:bg-blue-700",
-  green: "bg-green-600 hover:bg-green-700",
-  orange: "bg-orange-600 hover:bg-orange-700",
-  cyan: "bg-cyan-600 hover:bg-cyan-700",
-  purple: "bg-purple-600 hover:bg-purple-700",
-  teal: "bg-teal-600 hover:bg-teal-700"
+const categoryButtonColors: { [key: string]: string } = {
+  Sky: "bg-blue-600 hover:bg-blue-700",
+  Water: "bg-cyan-600 hover:bg-cyan-700",
+  Land: "bg-green-600 hover:bg-green-700"
 };
 
-const priceColors: { [key: string]: string } = {
-  blue: "text-blue-600",
-  green: "text-green-600",
-  orange: "text-orange-600",
-  cyan: "text-cyan-600",
-  purple: "text-purple-600",
-  teal: "text-teal-600"
+const categoryPriceColors: { [key: string]: string } = {
+  Sky: "text-blue-600",
+  Water: "text-cyan-600",
+  Land: "text-green-600"
 };
 
 export default function Home() {
@@ -43,7 +34,7 @@ export default function Home() {
         const { data, error } = await supabase
           .from('tours')
           .select('*')
-          .eq('featured', true)
+          .eq('is_active', true)
           .limit(3);
 
         if (error) throw error;
@@ -58,6 +49,12 @@ export default function Home() {
 
     fetchFeaturedTours();
   }, []);
+
+  const formatPrice = (tour: Tour) => {
+    const price = tour.price_adult;
+    const currency = tour.currency === 'TRY' ? '₺' : tour.currency === 'USD' ? '$' : '€';
+    return `${currency}${price.toFixed(0)}`;
+  };
 
   return (
     <main className="min-h-screen">
@@ -119,18 +116,23 @@ export default function Home() {
                       />
                     </div>
                   ) : (
-                    <div className={`h-48 bg-gradient-to-r ${colorVariants[tour.color] || 'from-blue-400 to-blue-600'}`}></div>
+                    <div className={`h-48 bg-gradient-to-r ${categoryColors[tour.category] || 'from-blue-400 to-blue-600'}`}></div>
                   )}
                   <div className="p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-semibold text-gray-500 uppercase">
+                        {tour.category}
+                      </span>
+                    </div>
                     <h3 className="text-2xl font-bold mb-3">{tour.name}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{tour.description}</p>
+                    <p className="text-gray-600 mb-4 line-clamp-3">{tour.short_description}</p>
                     <div className="flex justify-between items-center">
-                      <span className={`text-2xl font-bold ${priceColors[tour.color] || 'text-blue-600'}`}>
-                        {tour.price}
+                      <span className={`text-2xl font-bold ${categoryPriceColors[tour.category] || 'text-blue-600'}`}>
+                        {formatPrice(tour)}
                       </span>
                       <Link
                         href="/tours"
-                        className={`${buttonVariants[tour.color] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
+                        className={`${categoryButtonColors[tour.category] || 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2 rounded-lg transition`}
                       >
                         Book Now
                       </Link>
