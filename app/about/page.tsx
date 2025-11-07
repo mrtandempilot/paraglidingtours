@@ -19,7 +19,7 @@ export default function AboutPage() {
               <h2 className="text-4xl font-bold mb-6">Our Story</h2>
               <p className="text-gray-600 mb-4">
                 Founded in 2010, Oludeniz Tours has been providing exceptional
-                adventure experiences in one of Turkey's most beautiful
+                adventure experiences in one of Turkey&apos;s most beautiful
                 destinations. Our passion for sharing the natural beauty of
                 Oludeniz has made us one of the leading tour operators in the
                 region.
