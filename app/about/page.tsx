@@ -27,7 +27,7 @@ export default function AboutPage() {
               <p className="text-gray-600 mb-4">
                 What started as a small paragliding operation has grown into a
                 full-service tour company offering a wide range of activities.
-                We've helped thousands of visitors create unforgettable memories
+                We&apos;ve helped thousands of visitors create unforgettable memories
                 while maintaining the highest safety standards and environmental
                 responsibility.
               </p>

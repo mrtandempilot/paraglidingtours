@@ -11,7 +11,7 @@ export default function Footer() {
             <p className="text-gray-300">
               Experience the thrill of paragliding over the stunning Blue Lagoon
               of Oludeniz. We offer unforgettable adventure tours in one of
-              Turkey's most beautiful destinations.
+              Turkey&apos;s most beautiful destinations.
             </p>
           </div>
 

@@ -47,7 +47,7 @@ export default function Home() {
                 <h3 className="text-2xl font-bold mb-3">Tandem Paragliding</h3>
                 <p className="text-gray-600 mb-4">
                   Fly with an experienced pilot and enjoy stunning views of
-                  Oludeniz's famous Blue Lagoon.
+                  Oludeniz&apos;s famous Blue Lagoon.
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-2xl font-bold text-blue-600">€75</span>
