@@ -1,10 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getCurrentUser, signOut } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Get initial user
+    getCurrentUser()
+      .then(setUser)
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <nav className="bg-blue-600 text-white shadow-lg">
@@ -17,7 +49,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="hover:text-blue-200 transition">
               Home
             </Link>
@@ -30,6 +62,29 @@ export default function Navbar() {
             <Link href="/contact" className="hover:text-blue-200 transition">
               Contact
             </Link>
+            
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="flex items-center space-x-4">
+                    <span className="text-blue-100 text-sm">{user.email}</span>
+                    <button
+                      onClick={handleSignOut}
+                      className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition"
+                  >
+                    Login
+                  </Link>
+                )}
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -88,6 +143,33 @@ export default function Navbar() {
             >
               Contact
             </Link>
+            
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="pt-2 border-t border-blue-500 mt-2">
+                    <span className="block py-2 text-blue-100 text-sm">{user.email}</span>
+                    <button
+                      onClick={() => {
+                        handleSignOut();
+                        setIsOpen(false);
+                      }}
+                      className="block w-full text-left py-2 hover:text-blue-200 transition"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="block py-2 hover:text-blue-200 transition"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Login
+                  </Link>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
