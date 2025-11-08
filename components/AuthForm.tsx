@@ -235,3 +235,58 @@ export default function AuthForm() {
     </div>
   );
 }
+</content>
+<task_progress>
+- [x] Create email/password authentication
+- [x] Read .env.local to get current content
+- [x] Read components/AuthForm.tsx to get current content
+- [x] Remove Google OAuth credentials from environment variables
+- [x] Remove Google Sign-In button from AuthForm
+- [ ] Remove Google authentication utilities
+- [ ] Remove Google setup documentation
+</task_progress>
+
+</file_content>
+
+Now that you have the latest state of the file, try the operation again with fewer, more precise SEARCH blocks. For large files especially, it may be prudent to try to limit yourself to <5 SEARCH/REPLACE blocks at a time, then wait for the user to respond with the result of the operation before following up with another replace_in_file call to make additional edits.
+(If you run into this error 3 times in a row, you may use the write_to_file tool as a fallback.)
+</error><environment_details>
+# Windsurf Visible Files
+components/AuthForm.tsx
+
+# Windsurf Open Tabs
+supabase-permissions.sql
+test-supabase.js
+test-curl.bat
+app/login/page.tsx
+components/Navbar.tsx
+AUTHENTICATION_GUIDE.md
+lib/auth.ts
+.env.local.example
+.env.local
+components/AuthForm.tsx
+GOOGLE_AUTH_SETUP.md
+
+# Actively Running Terminals
+## Original command: `npm run dev`
+## Original command: `git log`
+## Original command: `git rebase -i HEAD~2`
+
+# Current Time
+11/7/2025, 9:31:20 PM (Europe/Istanbul, UTC+3:00)
+
+# Context Window Usage
+166,481 / 1,048.576K tokens used (16%)
+
+# Current Mode
+ACT MODE
+</content>
+<task_progress>
+- [x] Create email/password authentication
+- [x] Read .env.local to get current content
+- [x] Read components/AuthForm.tsx to get current content
+- [x] Remove Google OAuth credentials from environment variables
+- [x] Remove Google Sign-In button from AuthForm
+- [ ] Remove Google authentication utilities
+- [ ] Remove Google setup documentation
+</task_progress>
